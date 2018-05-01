@@ -31,8 +31,13 @@ Template.sideNav.helpers({
 		return !!Meteor.userId();
 	},
 
-	isLastMessageActive() {
-		return RocketChat.settings.get('Store_Last_Message');
+	sidebarViewMode() {
+		const viewMode = RocketChat.getUserPreference(Meteor.user(), 'sidebarViewMode');
+		return viewMode ? viewMode : 'condensed';
+	},
+
+	sidebarHideAvatar() {
+		return RocketChat.getUserPreference(Meteor.user(), 'sidebarHideAvatar');
 	}
 });
 
@@ -43,14 +48,6 @@ Template.sideNav.events({
 
 	'click .arrow'() {
 		return SideNav.toggleCurrent();
-	},
-
-	'mouseenter .header'() {
-		return SideNav.overArrow();
-	},
-
-	'mouseleave .header'() {
-		return SideNav.leaveArrow();
 	},
 
 	'scroll .rooms-list'() {
@@ -71,6 +68,8 @@ Template.sideNav.onRendered(function() {
 	if (room !== undefined && room._id !== '') {
 		FlowRouter.go(`/channel/${ first_channel_login }`);
 	}
+
+	window.parent.postMessage('chat_rendered','*');
 
 	return Meteor.defer(() => menu.updateUnreadBars());
 });
